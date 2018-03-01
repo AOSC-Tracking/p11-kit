@@ -208,7 +208,11 @@ create_tokens_inlock (p11_array *tokens,
 		int flags;
 	} labels[] = {
 		{ "~/", "User Trust", P11_TOKEN_FLAG_NONE },
+#ifdef LIBNSSCKBI_COMPAT
+		{ P11_DEFAULT_TRUST_PREFIX, "Builtin Object Token", P11_TOKEN_FLAG_WRITE_PROTECTED },
+#else
 		{ P11_DEFAULT_TRUST_PREFIX, "Default Trust", P11_TOKEN_FLAG_WRITE_PROTECTED },
+#endif
 		{ P11_SYSTEM_TRUST_PREFIX, "System Trust", P11_TOKEN_FLAG_NONE },
 		{ NULL },
 	};
@@ -543,8 +547,14 @@ sys_C_GetSlotInfo (CK_SLOT_ID id,
 		info->flags = CKF_TOKEN_PRESENT;
 		memcpy ((char*)info->manufacturerID, MANUFACTURER_ID, 32);
 
+#ifdef LIBNSSCKBI_COMPAT
+		/* Change description to match libnssckbi so HPKP works in Chromium */
+		if (strcmp (p11_token_get_label (token), "Builtin Object Token") == 0)
+			path = "NSS Builtin Objects";
+		else
+#endif
+			path = p11_token_get_path (token);
 		/* If too long, copy the first 64 characters into buffer */
-		path = p11_token_get_path (token);
 		length = strlen (path);
 		if (length > sizeof (info->slotDescription))
 			length = sizeof (info->slotDescription);

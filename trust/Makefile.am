@@ -60,6 +60,20 @@ p11_kit_trust_la_LDFLAGS = \
 
 p11_kit_trust_la_SOURCES = $(TRUST_SRCS) trust/module-init.c
 
+libnssckbi_compatdir = $(libdir)
+libnssckbi_compat_LTLIBRARIES = \
+	libnssckbi-p11-kit.la
+
+libnssckbi_p11_kit_la_CFLAGS = \
+	-DLIBNSSCKBI_COMPAT \
+	$(p11_kit_trust_la_CFLAGS)
+
+libnssckbi_p11_kit_la_LIBADD = $(p11_kit_trust_la_LIBADD)
+
+libnssckbi_p11_kit_la_LDFLAGS = $(p11_kit_trust_la_LDFLAGS)
+
+libnssckbi_p11_kit_la_SOURCES = $(p11_kit_trust_la_SOURCES)
+
 libtrust_testable_la_LDFLAGS = \
 	-no-undefined
 
